@@ -10,10 +10,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -24,12 +21,12 @@ import java.util.List;
 public class WiFiScannerActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
-    private ListView listView;
+    private ListView wifiList;
     private Button buttonScan;
-    private int size = 0;
     private List<ScanResult> results;
     private ArrayList<String> arrayList = new ArrayList<>();
     private ArrayAdapter adapter;
+
     BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -39,6 +36,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
             for (ScanResult scanResult : results) {
                 arrayList.add(scanResult.SSID + " RSSI: " + scanResult.level + "dBm");
                 adapter.notifyDataSetChanged();
+                
             }
         };
     };
@@ -55,7 +53,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
             }
         });
 
-        listView = findViewById(R.id.wifiList);
+        wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         if (!wifiManager.isWifiEnabled()) {
@@ -64,12 +62,19 @@ public class WiFiScannerActivity extends AppCompatActivity {
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
-        listView.setAdapter(adapter);
-        scanWifi();
+        wifiList.setAdapter(adapter);
+        wifiList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+        });
+        //scanWifi();
     }
 
     private void scanWifi() {
         arrayList.clear();
+        System.out.println("Test");
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
            if(!wifiManager.startScan()){
@@ -83,7 +88,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
        }else{
            System.out.println("Nalezy nadac uprawnienia");
        }
-
 
     }
 }
