@@ -36,7 +36,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
             for (ScanResult scanResult : results) {
                 arrayList.add(scanResult.SSID + " RSSI: " + scanResult.level + "dBm");
                 adapter.notifyDataSetChanged();
-                
+
             }
         };
     };
@@ -56,6 +56,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
         wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
+
         if (!wifiManager.isWifiEnabled()) {
             Toast.makeText(this, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
             wifiManager.setWifiEnabled(true);
@@ -66,7 +67,17 @@ public class WiFiScannerActivity extends AppCompatActivity {
         wifiList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(WiFiScannerActivity.this, WiFiScannerDetails.class);
 
+                intent.putExtra("detailsSsid", results.get(i).SSID);
+                intent.putExtra("detailsRssi", results.get(i).level);
+                intent.putExtra("detailsFreq", results.get(i).frequency);
+                intent.putExtra("detailsMac", results.get(i).BSSID);
+                intent.putExtra("detailsEncryption", results.get(i).capabilities);
+                System.out.println(results.get(i).BSSID + " BLANK RSSI VALUE: " + results.get(i).level);
+                startActivity(intent);
+
+                //intent.putExtra("")
             }
         });
         //scanWifi();
