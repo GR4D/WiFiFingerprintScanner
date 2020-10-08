@@ -8,7 +8,7 @@
         tools:context=".WiFiScannerDetails">
 
     <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbarDetails"
             android:background="?attr/colorPrimary"
             android:theme="?attr/actionBarTheme"
             android:layout_width="match_parent"
@@ -21,5 +21,5 @@
             android:layout_width="379dp"
             android:layout_height="125dp" android:id="@+id/scanDetails"
             tools:layout_editor_absoluteX="16dp" android:layout_marginTop="13dp"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
+            app:layout_constraintTop_toBottomOf="@+id/toolbarDetails"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

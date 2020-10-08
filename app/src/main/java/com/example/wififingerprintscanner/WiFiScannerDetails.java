@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 public class WiFiScannerDetails extends AppCompatActivity {
 
-    Toolbar mToolbar;
+    Toolbar detailsToolbar;
     TextView scanDetailsInfo;
 
 
@@ -16,14 +16,14 @@ public class WiFiScannerDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi_scanner_details);
 
-        mToolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbar);
+        detailsToolbar = (androidx.appcompat.widget.Toolbar) findViewById(R.id.toolbarDetails);
         scanDetailsInfo = (TextView) findViewById(R.id.scanDetails);
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
-            mToolbar.setTitle(bundle.getString("detailsSsid"));
-            scanDetailsInfo.setText("RSSI: "+ bundle.getInt("detailsRssi") + "dBm  Freq: " + bundle.getInt("detailsFreq") + "MHz  Channel: " + freqToChannel(bundle.getInt("detailsFreq"))
-            + "  MAC: " + bundle.getString("detailsMac") + "  Encryption: " + bundle.getString("detailsEncryption"));
+            detailsToolbar.setTitle("Showing details for " + bundle.getString("detailsSsid"));
+            scanDetailsInfo.setText("RSSI: "+ bundle.getInt("detailsRssi") + "dBm\nFreq: " + bundle.getInt("detailsFreq") + "MHz\nChannel: " + freqToChannel(bundle.getInt("detailsFreq"))
+            + "\nMAC: " + bundle.getString("detailsMac") + "\nEncryption: " + bundle.getString("detailsEncryption"));
         }
 
     }

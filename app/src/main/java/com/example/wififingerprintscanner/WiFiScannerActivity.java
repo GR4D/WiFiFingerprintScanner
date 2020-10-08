@@ -17,6 +17,8 @@ import androidx.core.content.ContextCompat;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
+
 
 public class WiFiScannerActivity extends AppCompatActivity {
 
@@ -36,7 +38,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
             for (ScanResult scanResult : results) {
                 arrayList.add(scanResult.SSID + " RSSI: " + scanResult.level + "dBm");
                 adapter.notifyDataSetChanged();
-
             }
         };
     };
@@ -58,7 +59,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
 
 
         if (!wifiManager.isWifiEnabled()) {
-            Toast.makeText(this, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You need to enable WiFi in order to scan for nearby APs.", Toast.LENGTH_LONG).show();
             wifiManager.setWifiEnabled(true);
         }
 
@@ -69,21 +70,23 @@ public class WiFiScannerActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(WiFiScannerActivity.this, WiFiScannerDetails.class);
 
-                intent.putExtra("detailsSsid", results.get(i).SSID);
-                intent.putExtra("detailsRssi", results.get(i).level);
-                intent.putExtra("detailsFreq", results.get(i).frequency);
-                intent.putExtra("detailsMac", results.get(i).BSSID);
-                intent.putExtra("detailsEncryption", results.get(i).capabilities);
-                System.out.println(results.get(i).BSSID + " BLANK RSSI VALUE: " + results.get(i).level);
-                startActivity(intent);
+                fillData(intent,i);
 
-                //intent.putExtra("")
+                startActivity(intent);
             }
         });
-        //scanWifi();
     }
 
-    private void scanWifi() {
+    public void fillData(Intent intent, int i){
+        intent.putExtra("detailsSsid", results.get(i).SSID);
+        intent.putExtra("detailsRssi", results.get(i).level);
+        intent.putExtra("detailsFreq", results.get(i).frequency);
+        intent.putExtra("detailsMac", results.get(i).BSSID);
+        intent.putExtra("detailsEncryption", results.get(i).capabilities);
+        System.out.println(results.get(i).BSSID + " BLANK RSSI VALUE: " + results.get(i).level);
+    }
+
+    public void scanWifi() {
         arrayList.clear();
         System.out.println("Test");
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
