@@ -98,8 +98,10 @@ public class WiFiScannerActivity extends AppCompatActivity {
                System.out.println("Skanowanie prawidlowe");
            }
        }else if(shouldShowRequestPermissionRationale(String.valueOf(PackageManager.PERMISSION_GRANTED))){
+           Toast.makeText(this, "Error: 1 ", Toast.LENGTH_SHORT).show();
            System.out.println("Nalezy wyswietlic UI.");
        }else{
+           Toast.makeText(this, "Brak dostepu do lokalizacji.", Toast.LENGTH_SHORT).show();
            System.out.println("Nalezy nadac uprawnienia");
        }
 
