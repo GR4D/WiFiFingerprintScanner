@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".WiFiFingerprints">
+
+    <TextView
+            android:text="ORIENTATION:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textView3"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/orientationField" android:layout_marginStart="104dp"
+            app:layout_constraintStart_toEndOf="@+id/textView2" android:layout_marginEnd="55dp"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    <Button
+            android:id="@+id/mapButton"
+            android:layout_width="155dp"
+            android:layout_height="42dp"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:background="@android:color/holo_red_light"
+            android:text="MARK POSITION" app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="16dp" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="94dp" app:layout_constraintBottom_toTopOf="@+id/imageMap"
+            app:layout_constraintVertical_bias="0.0" android:layout_marginStart="44dp"
+            app:layout_constraintStart_toEndOf="@+id/fingerprintButton"/>
+    <Button
+            android:id="@+id/fingerprintButton"
+            android:layout_width="155dp"
+            android:layout_height="42dp"
+            android:layout_gravity="bottom"
+            android:layout_margin="15dp"
+            android:background="@android:color/holo_red_light"
+            android:text="Fingerprint Scan"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+            android:layout_marginBottom="94dp" app:layout_constraintBottom_toTopOf="@+id/imageMap"
+            app:layout_constraintVertical_bias="0.0" app:layout_constraintEnd_toStartOf="@+id/mapButton"
+            android:layout_marginEnd="72dp" app:layout_constraintHorizontal_bias="0.56" android:visibility="visible"
+    />
+    <ImageView
+            android:layout_width="313dp"
+            android:layout_height="460dp" app:srcCompat="@drawable/planbudynku" android:id="@+id/imageMap"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="23dp" android:layout_marginEnd="24dp"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.647"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="150dp"
+            android:layout_marginBottom="10dp" app:layout_constraintVertical_bias="0.763"/>
+    <EditText
+            android:layout_width="55dp"
+            android:layout_height="42dp"
+            android:inputType="textPersonName"
+            android:text="X:"
+            android:ems="10"
+            android:id="@+id/xPos"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="29dp"
+            android:importantForAutofill="no" app:layout_constraintTop_toBottomOf="@+id/fingerprintButton"
+            android:layout_marginTop="24dp"/>
+    <EditText
+            android:layout_width="55dp"
+            android:layout_height="42dp"
+            android:inputType="textPersonName"
+            android:text="Y:"
+            android:ems="10"
+            android:id="@+id/yPos"
+            android:layout_marginStart="45dp" app:layout_constraintStart_toEndOf="@+id/xPos"
+            app:layout_constraintTop_toBottomOf="@+id/fingerprintButton" android:layout_marginTop="24dp"/>
+    <EditText
+            android:layout_width="153dp"
+            android:layout_height="42dp"
+            android:inputType="textPersonName"
+            android:text="VER/HOR"
+            android:ems="10"
+            android:id="@+id/orientationField"
+            android:layout_marginEnd="31dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="43dp"
+            app:layout_constraintStart_toEndOf="@+id/yPos"
+            android:importantForAutofill="no"
+            app:layout_constraintTop_toBottomOf="@+id/mapButton" android:layout_marginTop="24dp"/>
+    <TextView
+            android:text="X:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textView"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/xPos"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="45dp"/>
+    <TextView
+            android:text="Y:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textView2"
+            android:textColor="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/yPos" android:layout_marginStart="92dp"
+            app:layout_constraintStart_toEndOf="@+id/textView"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

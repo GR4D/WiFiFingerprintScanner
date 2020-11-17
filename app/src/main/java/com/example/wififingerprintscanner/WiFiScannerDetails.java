@@ -31,10 +31,8 @@ public class WiFiScannerDetails extends AppCompatActivity {
     {
         if (freq == 2484)
             return 14;
-
         if (freq < 2484)
             return (freq - 2407) / 5;
-
         return freq/5 - 1000;
     }
 }
