@@ -243,12 +243,8 @@ public class WiFiFingerprints extends AppCompatActivity {
     }
 
     private void fetchData(ResultSet resultSet) throws SQLException {
-        // ResultSet is initially before the first data set
         while (resultSet.next()) {
-            // It is possible to get the columns via name
-            // also possible to get the columns via the column number
-            // which starts at 1
-            // e.g. resultSet.getSTring(2);
+
             String user = resultSet.getString("id");
             String website = resultSet.getString("mac");
             String summary = resultSet.getString("ssid");
