@@ -7,16 +7,8 @@
         android:layout_height="match_parent"
         tools:context=".WiFiFingerprints">
 
-    <TextView
-            android:text="ORIENTATION:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/textView3"
-            android:textColor="#000000"
-            app:layout_constraintBottom_toTopOf="@+id/orientationField" android:layout_marginStart="104dp"
-            app:layout_constraintStart_toEndOf="@+id/textView2" android:layout_marginEnd="55dp"
-            app:layout_constraintEnd_toEndOf="parent"/>
     <Button
-            android:id="@+id/mapButton"
+            android:id="@+id/sendButton"
             android:layout_width="155dp"
             android:layout_height="42dp"
             android:layout_gravity="bottom"
@@ -38,7 +30,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
             android:layout_marginBottom="94dp" app:layout_constraintBottom_toTopOf="@+id/imageMap"
-            app:layout_constraintVertical_bias="0.0" app:layout_constraintEnd_toStartOf="@+id/mapButton"
+            app:layout_constraintVertical_bias="0.0" app:layout_constraintEnd_toStartOf="@+id/sendButton"
             android:layout_marginEnd="72dp" app:layout_constraintHorizontal_bias="0.56" android:visibility="visible"
     />
     <ImageView
@@ -67,31 +59,48 @@
             android:text="Y:"
             android:ems="10"
             android:id="@+id/yPos"
-            android:layout_marginStart="45dp" app:layout_constraintStart_toEndOf="@+id/xPos"
+            android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@+id/xPos"
             app:layout_constraintTop_toBottomOf="@+id/fingerprintButton" android:layout_marginTop="24dp"/>
     <EditText
-            android:layout_width="153dp"
-            android:layout_height="42dp"
+            android:layout_width="94dp"
+            android:layout_height="41dp"
             android:inputType="textPersonName"
-            android:text="VER/HOR"
+            android:text="Comments"
             android:ems="10"
             android:id="@+id/orientationField"
-            android:layout_marginEnd="31dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="43dp"
-            app:layout_constraintStart_toEndOf="@+id/yPos"
             android:importantForAutofill="no"
-            app:layout_constraintTop_toBottomOf="@+id/mapButton" android:layout_marginTop="24dp"/>
+            android:layout_marginEnd="28dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="24dp" app:layout_constraintTop_toBottomOf="@+id/sendButton"/>
     <TextView
             android:text="X:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/textView"
             android:textColor="#000000"
-            app:layout_constraintBottom_toTopOf="@+id/xPos"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="45dp"/>
+            app:layout_constraintBottom_toTopOf="@+id/xPos" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="44dp"/>
     <TextView
             android:text="Y:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/textView2"
             android:textColor="#000000"
-            app:layout_constraintBottom_toTopOf="@+id/yPos" android:layout_marginStart="92dp"
+            app:layout_constraintBottom_toTopOf="@+id/yPos" android:layout_marginStart="65dp"
             app:layout_constraintStart_toEndOf="@+id/textView"/>
+    <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/sendButton" android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/yPos" android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/orientationField" android:layout_marginEnd="17dp"
+            android:id="@+id/radioGroup">
+        <RadioButton
+                android:text="Vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/radioVertical"
+        />
+        <RadioButton
+                android:text="Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/radioHorizontal"/>
+    </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

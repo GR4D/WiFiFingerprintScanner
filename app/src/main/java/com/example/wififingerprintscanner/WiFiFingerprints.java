@@ -28,7 +28,7 @@ public class WiFiFingerprints extends AppCompatActivity {
     private ListView wifiList;
     private Button fingerprintButton;
     private Button apButton;
-    private Button mapButton;
+    private Button sendButton;
     private List<ScanResult> results;
     private ArrayList<String> arrayList = new ArrayList<>();
     private ArrayAdapter adapter;
@@ -50,6 +50,7 @@ public class WiFiFingerprints extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             results = wifiManager.getScanResults();
             unregisterReceiver(this);
+            sendButton.setEnabled(true);
         };
     };
 
@@ -66,27 +67,24 @@ public class WiFiFingerprints extends AppCompatActivity {
         fingerprintButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if(results == null){
-//                    scanWifi();
-//                }
-//                if(results != null){
-//                    System.out.println(" WYKONALO SIE ");
-//                    Send objSend = new Send();
-//                    objSend.execute("");
-//                }else System.out.println(" RESULTS NULLLLLLLLL");
-
+                sendButton.setEnabled(false);
                 scanWifi();
-                Send objSend = new Send();
-                   objSend.execute("");
-
             }
         });
 
-        mapButton = findViewById(R.id.mapButton);
-        mapButton.setOnClickListener(new View.OnClickListener() {
+        sendButton = findViewById(R.id.sendButton);
+        sendButton.setEnabled(false);
+        sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(WiFiFingerprints.this, PopupPosition.class));
+                if(results != null){
+                    fingerprintButton.setEnabled(false);
+                    System.out.println(" WYKONALO SIE ");
+                    Send objSend = new Send();
+                    objSend.execute("");
+                    sendButton.setEnabled(false);
+
+                }else System.out.println(" RESULTS NULLLLLLLLL");
             }
         });
 
@@ -207,6 +205,14 @@ public class WiFiFingerprints extends AppCompatActivity {
                         "'"+results.get(4).level+"','"+results.get(5).BSSID+"','"+results.get(5).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
                         "'"+"testtest"+"')";
 
+
+                //TEST STRING
+//                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation) " +
+//                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(0).BSSID+ "'," +
+//                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"'," +
+//                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
+//                        "'"+"testtest"+"')";
+
                 //orientation(orientationField.getText())   zamiast testtest
 
 
@@ -235,6 +241,7 @@ public class WiFiFingerprints extends AppCompatActivity {
         @Override
         protected void onPostExecute(String msg){
             System.out.println("Post execute");
+            fingerprintButton.setEnabled(true);
         }
     }
     public void openApList(){
