@@ -30,18 +30,23 @@ public class WiFiFingerprints extends AppCompatActivity {
     private Button apButton;
     private Button sendButton;
     private List<ScanResult> results;
-    private ArrayList<String> arrayList = new ArrayList<>();
+    private final ArrayList<String> arrayList = new ArrayList<>();
     private ArrayAdapter adapter;
     private static final String DB_URL = "jdbc:mysql://192.168.0.2:3306/wifi_fingerprint_db";
     private static final String USER = "gr4d";
     private static final String PASS = "172216";
     public int scanIndex = 0;
     private TextView errorsView;
-    private ResultSet query = null;
+    private final ResultSet query = null;
     private ImageView mapa;
     private EditText xPos;
     private EditText yPos;
     private EditText orientationField;
+    private RadioButton radioVertical;
+    private RadioButton radioHorizontal;
+    private EditText comments;
+    public List<ScanResult> results2 = new ArrayList<>();
+    public List<ScanResult> results5 = new ArrayList<>();
 
 
     WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
@@ -51,7 +56,17 @@ public class WiFiFingerprints extends AppCompatActivity {
             results = wifiManager.getScanResults();
             unregisterReceiver(this);
             sendButton.setEnabled(true);
-        };
+            filterFrequency();
+
+
+            for (ScanResult scanResult : results2){
+                System.out.println(scanResult.BSSID + " 2.4");
+            }
+
+            for (ScanResult scanResult : results5){
+                System.out.println(scanResult.BSSID);
+            }
+        }
     };
 
     @Override
@@ -61,7 +76,7 @@ public class WiFiFingerprints extends AppCompatActivity {
 
 
         fingerprintButton = findViewById(R.id.scanBtn);
-        orientationField = findViewById(R.id.orientationField);
+        orientationField = findViewById(R.id.commentsText);
 
         fingerprintButton = findViewById(R.id.fingerprintButton);
         fingerprintButton.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +102,10 @@ public class WiFiFingerprints extends AppCompatActivity {
                 }else System.out.println(" RESULTS NULLLLLLLLL");
             }
         });
+
+        radioVertical = findViewById(R.id.radioVertical);
+        radioHorizontal = findViewById(R.id.radioHorizontal);
+        comments = findViewById(R.id.commentsText);
 
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -155,11 +174,12 @@ public class WiFiFingerprints extends AppCompatActivity {
             if(f > 2350 & f<2550){
                 return (float) 2.4;
             }else return  5;
-        };
-        boolean orientation(String o){
-            if(o == "vertical"){
-                return true;
-            }else return false;
+        }
+
+        String orientation(){
+            if(radioVertical.isChecked()){
+                return "vertical";
+            }else return "horizontal";
         }
 
 
@@ -189,6 +209,8 @@ public class WiFiFingerprints extends AppCompatActivity {
                 Class.forName("com.mysql.jdbc.Driver");
                 System.out.println("error 2");
                 Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+
                 System.out.println("error 3");
                 System.out.println(Calendar.getInstance().getTime());
 
@@ -199,28 +221,25 @@ public class WiFiFingerprints extends AppCompatActivity {
                 Statement stmt = conn.createStatement();
 
                 //TODO: poprawic wartosci
-                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation) " +
-                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(1).BSSID+ "'," +
-                        "'"+results.get(1).level+"','"+results.get(2).BSSID+"','"+results.get(2).level+"','"+results.get(3).BSSID+"','"+results.get(3).level+"','"+results.get(4).BSSID+"'," +
-                        "'"+results.get(4).level+"','"+results.get(5).BSSID+"','"+results.get(5).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
-                        "'"+"testtest"+"')";
+//                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation) " +
+//                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(1).BSSID+ "'," +
+//                        "'"+results.get(1).level+"','"+results.get(2).BSSID+"','"+results.get(2).level+"','"+results.get(3).BSSID+"','"+results.get(3).level+"','"+results.get(4).BSSID+"'," +
+//                        "'"+results.get(4).level+"','"+results.get(5).BSSID+"','"+results.get(5).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
+//                        "'"+orientation()+"')";
 
 
                 //TEST STRING
-//                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation) " +
-//                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(0).BSSID+ "'," +
-//                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"'," +
-//                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
-//                        "'"+"testtest"+"')";
-
+                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation, comments) " +
+                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(0).BSSID+ "'," +
+                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"'," +
+                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
+                        "'"+orientation()+"','"+comments.getText()+"')";
+                System.out.println(orientation());
                 //orientation(orientationField.getText())   zamiast testtest
 
 
                 System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
 
-                //query = stmt.executeQuery("select * from access_points");
-//                query = stmt.executeQuery("insert into access_points_2_4 (mac, ssid,channel, last_seen ) values ('\"+BSSID+\"','\"+SSID+\"','\"+wiFiScannerDetails.freqToChannel(FREQ)+\"' , '\"+ Calendar.getInstance().getTime() +\"')\"");
-//                fetchData(query);
                 stmt.executeUpdate(insert);
 
                 System.out.println("Update powiodl sie 2");
@@ -229,10 +248,15 @@ public class WiFiFingerprints extends AppCompatActivity {
             } catch (ClassNotFoundException e) {
                 System.out.println("class not found exception");
                 e.printStackTrace();
+                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
+                intent.putExtra("errorDetails", e.toString());
+                startActivity(intent);
             } catch (SQLException throwables) {
                 System.out.println("sqlexpception throwablss");
                 System.out.println(throwables);
-                errorsView.setText(throwables.toString());
+                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
+                intent.putExtra("errorDetails", throwables.toString());
+                startActivity(intent);
                 throwables.printStackTrace();
 
             }
@@ -263,7 +287,7 @@ public class WiFiFingerprints extends AppCompatActivity {
             System.out.println("Date: " + date);
             System.out.println("Comment: " + comment);
             //errorsView.setText(user+" "+website+" "+summary);
-            errorsView.append(user+" "+website+" "+summary+"\n");
+            //errorsView.append(user+" "+website+" "+summary+"\n");
         }
     }
 
@@ -275,4 +299,25 @@ public class WiFiFingerprints extends AppCompatActivity {
         }
 
     }
+
+    public void filterFrequency(){
+        if(results != null) {
+//            for (int i = 0; i < results.size(); i++) {
+//                if(results.get(i).frequency < 2550) {
+//                    results2.add(results.get(i));
+//                }else{
+//                    results5.add()
+//                    System.out.println("results 5");
+//                }
+//
+//            }
+            for(ScanResult scanResult : results){
+                if(scanResult.frequency < 2550){
+                    results2.add(scanResult);
+                }else
+                    results5.add(scanResult);
+            }
+        }
+    }
+
 }

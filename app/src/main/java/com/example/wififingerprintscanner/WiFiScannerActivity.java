@@ -86,7 +86,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
                 startActivity(mapa);
             }
         });
-        errorsView = findViewById(R.id.errorView);
+        //errorsView = findViewById(R.id.errorView);
 
         wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);

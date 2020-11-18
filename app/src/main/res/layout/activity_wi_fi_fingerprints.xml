@@ -34,14 +34,13 @@
             android:layout_marginEnd="72dp" app:layout_constraintHorizontal_bias="0.56" android:visibility="visible"
     />
     <ImageView
-            android:layout_width="313dp"
-            android:layout_height="460dp" app:srcCompat="@drawable/planbudynku" android:id="@+id/imageMap"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="23dp" android:layout_marginEnd="24dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.647"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="150dp"
-            android:layout_marginBottom="10dp" app:layout_constraintVertical_bias="0.763"/>
+            android:layout_width="wrap_content"
+            android:layout_height="449dp" app:srcCompat="@drawable/plan" android:id="@+id/imageMap"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup" android:adjustViewBounds="true"
+            android:cropToPadding="true" android:scaleType="fitXY" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp" app:layout_constraintVertical_bias="0.51" android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginTop="4dp"/>
     <EditText
             android:layout_width="55dp"
             android:layout_height="42dp"
@@ -64,14 +63,14 @@
     <EditText
             android:layout_width="94dp"
             android:layout_height="41dp"
-            android:inputType="textPersonName"
-            android:text="Comments"
+            android:inputType="none"
             android:ems="10"
-            android:id="@+id/orientationField"
+            android:id="@+id/commentsText"
             android:importantForAutofill="no"
-            android:layout_marginEnd="28dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp" app:layout_constraintTop_toBottomOf="@+id/sendButton"/>
+            android:layout_marginTop="24dp" app:layout_constraintTop_toBottomOf="@+id/sendButton"
+            android:contentDescription="Comments"/>
     <TextView
             android:text="X:"
             android:layout_width="wrap_content"
@@ -91,16 +90,17 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/sendButton" android:layout_marginTop="8dp"
             app:layout_constraintStart_toEndOf="@+id/yPos" android:layout_marginStart="16dp"
-            app:layout_constraintEnd_toStartOf="@+id/orientationField" android:layout_marginEnd="17dp"
-            android:id="@+id/radioGroup">
+            app:layout_constraintEnd_toStartOf="@+id/commentsText" android:layout_marginEnd="17dp"
+            android:id="@+id/radioGroup"
+    >
         <RadioButton
                 android:text="Vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:id="@+id/radioVertical"
-        />
+                android:checked="true"/>
         <RadioButton
                 android:text="Horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/radioHorizontal"/>
+                android:layout_height="wrap_content" android:id="@+id/radioHorizontal" android:checked="false"/>
     </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.example.wififingerprintscanner">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <uses-feature android:name="android.hardware.type.watch"/>
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -15,13 +19,22 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+<!--        <activity-->
+<!--                android:name=".ErrorPopup"-->
+<!--                android:label="@string/title_activity_error_popup">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN"/>-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER"/>-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+
         <activity android:name=".WiFiFingerprints">
         </activity>
         <activity android:name=".WiFiList">
         </activity>
         <activity android:name=".WiFiScannerDetails">
-        </activity>
-        <activity android:name=".PopupPosition">
         </activity>
         <activity android:name=".WiFiScannerActivity">
             <intent-filter>
