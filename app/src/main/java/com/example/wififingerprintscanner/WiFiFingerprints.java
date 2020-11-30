@@ -22,31 +22,28 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class WiFiFingerprints extends AppCompatActivity {
+public class WiFiFingerprints extends AppCompatActivity{
 
     private WifiManager wifiManager;
-    private ListView wifiList;
     private Button fingerprintButton;
-    private Button apButton;
     private Button sendButton;
     private List<ScanResult> results;
     private final ArrayList<String> arrayList = new ArrayList<>();
-    private ArrayAdapter adapter;
-    private static final String DB_URL = "jdbc:mysql://192.168.0.2:3306/wifi_fingerprint_db";
+    private static final String DB_URL = "jdbc:mysql://192.168.0.2:3306/wifi_fingerprint_db?allowMultiQueries=true";
     private static final String USER = "gr4d";
     private static final String PASS = "172216";
     public int scanIndex = 0;
-    private TextView errorsView;
-    private final ResultSet query = null;
     private ImageView mapa;
     private EditText xPos;
     private EditText yPos;
-    private EditText orientationField;
     private RadioButton radioVertical;
     private RadioButton radioHorizontal;
     private EditText comments;
-    public List<ScanResult> results2 = new ArrayList<>();
-    public List<ScanResult> results5 = new ArrayList<>();
+    private List<ScanResult> results2 = new ArrayList<>();
+    private List<ScanResult> results5 = new ArrayList<>();
+    private Spinner fingerprintPlaces;
+    private String insert2;
+    private String insert5;
 
 
     WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
@@ -57,15 +54,6 @@ public class WiFiFingerprints extends AppCompatActivity {
             unregisterReceiver(this);
             sendButton.setEnabled(true);
             filterFrequency();
-
-
-            for (ScanResult scanResult : results2){
-                System.out.println(scanResult.BSSID + " 2.4");
-            }
-
-            for (ScanResult scanResult : results5){
-                System.out.println(scanResult.BSSID);
-            }
         }
     };
 
@@ -74,9 +62,41 @@ public class WiFiFingerprints extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi_fingerprints);
 
+        mapa = findViewById(R.id.imageMap);
+        fingerprintPlaces = findViewById(R.id.fingerprintPlacesList);
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.fingerprintPlace, android.R.layout.simple_spinner_item);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        fingerprintPlaces.setAdapter(adapter2);
+        fingerprintPlaces.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                System.out.println("item selected");
+                System.out.println(fingerprintPlaces.getSelectedItem().toString());
+                System.out.println(fingerprintPlaces.getSelectedItemPosition());
+                if(fingerprintPlaces.getSelectedItemPosition() == 0){
+                    mapa.setImageResource(R.drawable.plan);
+                    System.out.println("Plan 1");
+                }else if(fingerprintPlaces.getSelectedItemPosition() == 1){
+                    mapa.setImageResource(R.drawable.plan2);
+                    System.out.println("PLan 2");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
 
         fingerprintButton = findViewById(R.id.scanBtn);
-        orientationField = findViewById(R.id.commentsText);
+        comments = findViewById(R.id.commentsText);
+        comments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                comments.setText(null);
+            }
+        });
 
         fingerprintButton = findViewById(R.id.fingerprintButton);
         fingerprintButton.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +104,7 @@ public class WiFiFingerprints extends AppCompatActivity {
             public void onClick(View view) {
                 sendButton.setEnabled(false);
                 scanWifi();
+                System.out.println(fingerprintPlaces.getSelectedItem().toString());
             }
         });
 
@@ -95,8 +116,10 @@ public class WiFiFingerprints extends AppCompatActivity {
                 if(results != null){
                     fingerprintButton.setEnabled(false);
                     System.out.println(" WYKONALO SIE ");
-                    Send objSend = new Send();
-                    objSend.execute("");
+
+                    updateApList();
+//                    Send objSend = new Send();
+//                    objSend.execute("");
                     sendButton.setEnabled(false);
 
                 }else System.out.println(" RESULTS NULLLLLLLLL");
@@ -115,7 +138,7 @@ public class WiFiFingerprints extends AppCompatActivity {
             wifiManager.setWifiEnabled(true);
         }
 
-        mapa = findViewById(R.id.imageMap);
+
         //Oznaczanie pozycji na planie i przeskalowanie (0-100)
         mapa.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -136,21 +159,12 @@ public class WiFiFingerprints extends AppCompatActivity {
         });
     }
 
-    public void fillData(Intent intent, int i){
-        intent.putExtra("detailsSsid", results.get(i).SSID);
-        intent.putExtra("detailsRssi", results.get(i).level);
-        intent.putExtra("detailsFreq", results.get(i).frequency);
-        intent.putExtra("detailsMac", results.get(i).BSSID);
-        intent.putExtra("detailsEncryption", results.get(i).capabilities);
-        System.out.println(results.get(i).BSSID + " BLANK RSSI VALUE: " + results.get(i).level);
-    }
-
     public void scanWifi() {
         arrayList.clear();
         System.out.println("Test");
         registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
-            if(!wifiManager.startScan()){
+            if(!wifiManager.startScan() ){
                 Toast.makeText(this, "Należy odczekać 2 minuty aby ponowić skanowanie...", Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(this, "Scanning WiFi ...", Toast.LENGTH_SHORT).show();
@@ -166,23 +180,6 @@ public class WiFiFingerprints extends AppCompatActivity {
     }
 
     private class Send extends AsyncTask<String, String, String> {
-        String msg = "";
-        String BSSID = results.get(scanIndex).BSSID;
-        String SSID = results.get(scanIndex).SSID;
-        int FREQ = results.get(scanIndex).frequency;
-        float BAND(int f){
-            if(f > 2350 & f<2550){
-                return (float) 2.4;
-            }else return  5;
-        }
-
-        String orientation(){
-            if(radioVertical.isChecked()){
-                return "vertical";
-            }else return "horizontal";
-        }
-
-
 
         int CHANNEL_WIDTH(){
             if (results.get(scanIndex).channelWidth == 0){
@@ -194,7 +191,6 @@ public class WiFiFingerprints extends AppCompatActivity {
             }else if (results.get(scanIndex).channelWidth == 3){
                 return 160;
             }else return 81;
-
         }
 
         @Override
@@ -217,30 +213,18 @@ public class WiFiFingerprints extends AppCompatActivity {
                 if (conn == null) {
                     System.out.println("conn error");
                 }
-                //fillData();
+
                 Statement stmt = conn.createStatement();
 
-                //TODO: poprawic wartosci
-//                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation) " +
-//                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(1).BSSID+ "'," +
-//                        "'"+results.get(1).level+"','"+results.get(2).BSSID+"','"+results.get(2).level+"','"+results.get(3).BSSID+"','"+results.get(3).level+"','"+results.get(4).BSSID+"'," +
-//                        "'"+results.get(4).level+"','"+results.get(5).BSSID+"','"+results.get(5).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
-//                        "'"+orientation()+"')";
+                //new test strings
+                prepareInsertStatement();
 
-
-                //TEST STRING
-                String insert = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation, comments) " +
-                        "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+BAND(FREQ)+"','"+results.get(0).BSSID+"' ,'"+results.get(0).level+"', '"+ results.get(0).BSSID+ "'," +
-                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+results.get(0).BSSID+"'," +
-                        "'"+results.get(0).level+"','"+results.get(0).BSSID+"','"+results.get(0).level+"','"+Calendar.getInstance().getTime()+"','"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +
-                        "'"+orientation()+"','"+comments.getText()+"')";
+                System.out.println(insert2);
+                System.out.println(insert5);
                 System.out.println(orientation());
-                //orientation(orientationField.getText())   zamiast testtest
-
-
                 System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
 
-                stmt.executeUpdate(insert);
+                stmt.executeUpdate(insert2+insert5);
 
                 System.out.println("Update powiodl sie 2");
                 conn.close();
@@ -268,49 +252,11 @@ public class WiFiFingerprints extends AppCompatActivity {
             fingerprintButton.setEnabled(true);
         }
     }
-    public void openApList(){
-        Intent intent = new Intent(this, WiFiList.class);
-        startActivity(intent);
-    }
-
-    private void fetchData(ResultSet resultSet) throws SQLException {
-        while (resultSet.next()) {
-
-            String user = resultSet.getString("id");
-            String website = resultSet.getString("mac");
-            String summary = resultSet.getString("ssid");
-            String date = resultSet.getString("channel");
-            String comment = resultSet.getString("comments");
-            System.out.println("User: " + user);
-            System.out.println("Website: " + website);
-            System.out.println("summary: " + summary);
-            System.out.println("Date: " + date);
-            System.out.println("Comment: " + comment);
-            //errorsView.setText(user+" "+website+" "+summary);
-            //errorsView.append(user+" "+website+" "+summary+"\n");
-        }
-    }
-
-    public void updateApList(){
-        for(int x = 0; x < results.size(); x++){
-            scanIndex = x;
-            WiFiFingerprints.Send objSend = new WiFiFingerprints.Send();
-            objSend.execute("");
-        }
-
-    }
 
     public void filterFrequency(){
         if(results != null) {
-//            for (int i = 0; i < results.size(); i++) {
-//                if(results.get(i).frequency < 2550) {
-//                    results2.add(results.get(i));
-//                }else{
-//                    results5.add()
-//                    System.out.println("results 5");
-//                }
-//
-//            }
+            results2.clear();
+            results5.clear();
             for(ScanResult scanResult : results){
                 if(scanResult.frequency < 2550){
                     results2.add(scanResult);
@@ -319,5 +265,139 @@ public class WiFiFingerprints extends AppCompatActivity {
             }
         }
     }
+    
+    public void prepareInsertStatement(){ //DODAC ADRESY MAC TELEFONU
+        if(results2.size() == 0){
+             insert2 = "";
+        }
+        else if (results2.size() == 1){
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, date, device_info, orientation, fingerprint_area, comments) " +
+            "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+Calendar.getInstance().getTime()+"'," +
+            "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }else if(results2.size() == 2){
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+results2.get(1).BSSID+"','"+results2.get(1).level+"' ,'"+Calendar.getInstance().getTime()+"'," +
+                    "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }else if(results2.size() == 3){
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+results2.get(1).BSSID+"','"+results2.get(1).level+"','"+results2.get(2).BSSID+"','"+results2.get(2).level+"'," +
+                    "'"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }else if(results2.size() == 4){
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+results2.get(1).BSSID+"','"+results2.get(1).level+"','"+results2.get(2).BSSID+"','"+results2.get(2).level+"','"+results2.get(3).BSSID+"','"+results2.get(3).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }else if(results2.size() == 5){
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+results2.get(1).BSSID+"','"+results2.get(1).level+"','"+results2.get(2).BSSID+"','"+results2.get(2).level+"','"+results2.get(3).BSSID+"','"+results2.get(3).level+"','"+results2.get(4).BSSID+"','"+results2.get(4).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }else{
+             insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"2.4"+"','"+results2.get(0).BSSID+"' ,'"+results2.get(0).level+"','"+results2.get(1).BSSID+"','"+results2.get(1).level+"','"+results2.get(2).BSSID+"','"+results2.get(2).level+"','"+results2.get(3).BSSID+"','"+results2.get(3).level+"','"+results2.get(4).BSSID+"','"+results2.get(4).level+"','"+results2.get(5).BSSID+"','"+results2.get(5).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"');";
+        }
 
+        if(results5.size() == 0){
+             insert5 = "";
+        }else if(results5.size() == 1){
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+Calendar.getInstance().getTime()+"'," +
+                    "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }else if(results5.size() == 2){
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+results5.get(1).BSSID+"','"+results5.get(1).level+"' ,'"+Calendar.getInstance().getTime()+"'," +
+                    "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }else if(results5.size() == 3){
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+results5.get(1).BSSID+"','"+results5.get(1).level+"','"+results5.get(2).BSSID+"','"+results5.get(2).level+"'," +
+                    "'"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }else if(results5.size() == 4){
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+results5.get(1).BSSID+"','"+results5.get(1).level+"','"+results5.get(2).BSSID+"','"+results5.get(2).level+"','"+results5.get(3).BSSID+"','"+results5.get(3).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }else if(results5.size() == 5){
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+results5.get(1).BSSID+"','"+results5.get(1).level+"','"+results5.get(2).BSSID+"','"+results5.get(2).level+"','"+results5.get(3).BSSID+"','"+results5.get(3).level+"','"+results5.get(4).BSSID+"','"+results5.get(4).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }else{
+             insert5 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, ap_2, ss_2, ap_3, ss_3, ap_4, ss_4, ap_5, ss_5, ap_6, ss_6, date, device_info, orientation, fingerprint_area, comments) " +
+                    "values ('"+xPos.getText()+"','"+yPos.getText()+"','"+"5"+"','"+results5.get(0).BSSID+"' ,'"+results5.get(0).level+"','"+results5.get(1).BSSID+"','"+results5.get(1).level+"','"+results5.get(2).BSSID+"','"+results5.get(2).level+"','"+results5.get(3).BSSID+"','"+results5.get(3).level+"','"+results5.get(4).BSSID+"','"+results5.get(4).level+"','"+results5.get(5).BSSID+"','"+results5.get(5).level+"','"+Calendar.getInstance().getTime()+"'," + "'"+ Build.MANUFACTURER+" "+Build.MODEL+"'," +"'"+orientation()+"','"+fingerprintPlaces.getSelectedItem().toString()+"','"+comments.getText()+"')";
+        }
+
+    }
+    String orientation(){
+        if(radioVertical.isChecked()){
+            return "vertical";
+        }else return "horizontal";
+    }
+
+    private class Update extends AsyncTask<String, String, String>{
+
+        //Dodawanie danych o AP do tabeli access_points
+        String BSSID = results.get(scanIndex).BSSID;
+        String SSID = results.get(scanIndex).SSID;
+        int FREQ = results.get(scanIndex).frequency;
+        int CHANNEL_WIDTH(){
+            switch (results.get(scanIndex).channelWidth) {
+                case 0:
+                    return 20;
+                case 1:
+                    return 40;
+                case 2:
+                    return 80;
+                case 3:
+                    return 160;
+                default:
+                    return 81;
+            }
+        }
+
+        @Override
+        protected  void onPreExecute(){
+            System.out.println("Inserting data, preexecute");
+        }
+
+        @Override
+        protected String doInBackground(String... strings){
+            try {
+                System.out.println("error 1");
+                Class.forName("com.mysql.jdbc.Driver");
+                System.out.println("error 2");
+                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+                System.out.println("error 3");
+                System.out.println(Calendar.getInstance().getTime());
+
+                if (conn == null) {
+                    System.out.println("conn error");
+                }
+                Statement stmt = conn.createStatement();
+                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
+                        "values ('"+BSSID+"','"+SSID+"','"+FREQ+"','"+wiFiScannerDetails.freqToChannel(FREQ)+"' ,'"+CHANNEL_WIDTH()+"', '"+ Calendar.getInstance().getTime()+ "')";
+
+                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
+
+                stmt.executeUpdate(insert);
+
+                System.out.println("Update powiodl sie 2");
+                conn.close();
+
+            } catch (ClassNotFoundException e) {
+                System.out.println("class not found exception");
+                e.printStackTrace();
+            } catch (SQLException throwables) {
+                System.out.println("sqlexpception throwablss");
+                System.out.println(throwables);
+                throwables.printStackTrace();
+            }
+            return "ok";
+        }
+        @Override
+        protected void onPostExecute(String msg){
+            System.out.println("Post execute");
+        }
+    }
+
+    public void updateApList(){
+        for(int x = 0; x < results.size(); x++){
+            scanIndex = x;
+            Update objUpdate = new Update();
+            objUpdate.execute("");
+        }
+        Send objSend = new Send();
+        objSend.execute("");
+    }
 }

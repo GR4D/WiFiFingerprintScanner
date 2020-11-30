@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="fingerprintPlace">
+        <item>Mieszkanie 11</item>
+        <item>Piętro IV</item>
+    </string-array>
+
+</resources>

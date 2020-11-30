@@ -24,9 +24,9 @@ public class WiFiScannerActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
     private ListView wifiList;
-    private Button buttonScan;
-    private Button apButton;
-    private Button switchMap;
+    private Button scanButton;
+    private Button sendUpdateButton;
+    private Button switchToMapButton;
     private List<ScanResult> results;
     private ArrayList<String> arrayList = new ArrayList<>();
     private ArrayAdapter adapter;
@@ -34,8 +34,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
     private static final String USER = "gr4d";
     private static final String PASS = "172216";
     public int scanIndex = 0;
-    private TextView errorsView;
-    private ResultSet query = null;
 
     WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
 
@@ -44,32 +42,43 @@ public class WiFiScannerActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             results = wifiManager.getScanResults();
             unregisterReceiver(this);
+            //odkomentowac w oficjalnej wersji
+            scanButton.setEnabled(true);
+            sendUpdateButton.setEnabled(true);
 
             for (ScanResult scanResult : results) {
                 arrayList.add(scanResult.SSID + " RSSI: " + scanResult.level + "dBm");
                 adapter.notifyDataSetChanged();
             }
-        };
+        }
     };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        buttonScan = findViewById(R.id.scanBtn);
-        buttonScan.setOnClickListener(new View.OnClickListener() {
+        scanButton = findViewById(R.id.scanBtn);
+        scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 scanWifi();
+                //odkomentowac w oficjalnej wersji
+                scanButton.setEnabled(false);
+                switchToMapButton.setEnabled(false);
             }
         });
 
-        apButton = findViewById(R.id.listBtn);
-        apButton.setOnClickListener(new View.OnClickListener() {
+        sendUpdateButton = findViewById(R.id.updateBtn);
+        //odkomentowac w oficjalnej wersji
+        sendUpdateButton.setEnabled(false);
+        sendUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                if(results != null){
                    updateApList();
+                   //odkomentowac w oficjalnej wersji
+                   sendUpdateButton.setEnabled(false);
+                   switchToMapButton.setEnabled(true);
                    System.out.println("not null");
                }else{
                    System.out.println("null");
@@ -77,8 +86,11 @@ public class WiFiScannerActivity extends AppCompatActivity {
             }
         });
 
-        switchMap = findViewById(R.id.switchTest);
-        switchMap.setOnClickListener(new View.OnClickListener() {
+        switchToMapButton = findViewById(R.id.switchToFingerprint);
+
+        //odkomentowac w oficjalnej wersji
+        switchToMapButton.setEnabled(false);
+        switchToMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent mapa = new Intent(WiFiScannerActivity.this, WiFiFingerprints.class);
@@ -86,7 +98,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
                 startActivity(mapa);
             }
         });
-        //errorsView = findViewById(R.id.errorView);
 
         wifiList = findViewById(R.id.wifiList);
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -147,8 +158,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
     private class Send extends AsyncTask<String, String, String>{
         
         //Dodawanie danych o AP do tabeli access_points
-
-        String msg = "";
         String BSSID = results.get(scanIndex).BSSID;
         String SSID = results.get(scanIndex).SSID;
         int FREQ = results.get(scanIndex).frequency;
@@ -162,7 +171,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
             }else if (results.get(scanIndex).channelWidth == 3){
                 return 160;
             }else return 81;
-
         }
 
         @Override
@@ -185,7 +193,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
                 }
                 //fillData();
                 Statement stmt = conn.createStatement();
-                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, last_seen ) " +
+                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
                     "values ('"+BSSID+"','"+SSID+"','"+FREQ+"','"+wiFiScannerDetails.freqToChannel(FREQ)+"' ,'"+CHANNEL_WIDTH()+"', '"+ Calendar.getInstance().getTime()+ "')";
 
                 System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
@@ -195,13 +203,15 @@ public class WiFiScannerActivity extends AppCompatActivity {
                 System.out.println("Update powiodl sie 2");
                 conn.close();
 
+                //odkomentowac w oficjalnej wersji
+                switchToMapButton.setEnabled(true);
+
             } catch (ClassNotFoundException e) {
                 System.out.println("class not found exception");
                 e.printStackTrace();
             } catch (SQLException throwables) {
                 System.out.println("sqlexpception throwablss");
                 System.out.println(throwables);
-                errorsView.setText(throwables.toString());
                 throwables.printStackTrace();
             }
             return "ok";
@@ -209,28 +219,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String msg){
             System.out.println("Post execute");
-        }
-    }
-    public void openApList(){
-        Intent intent = new Intent(this, WiFiList.class);
-        startActivity(intent);
-    }
-
-    private void fetchData(ResultSet resultSet) throws SQLException {
-        while (resultSet.next()) {
-
-            String user = resultSet.getString("id");
-            String website = resultSet.getString("mac");
-            String summary = resultSet.getString("ssid");
-            String date = resultSet.getString("channel");
-            String comment = resultSet.getString("comments");
-            System.out.println("User: " + user);
-            System.out.println("Website: " + website);
-            System.out.println("summary: " + summary);
-            System.out.println("Date: " + date);
-            System.out.println("Comment: " + comment);
-            //errorsView.setText(user+" "+website+" "+summary);
-            errorsView.append(user+" "+website+" "+summary+"\n");
         }
     }
 

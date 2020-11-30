@@ -1,38 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:padding="10dp"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent" android:id="@+id/linearLayout"
+                                                   android:background="#C5C5C5">
 
+    <Button
+            android:id="@+id/scanBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="Scan WiFi"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/updateBtn" app:layout_constraintBottom_toTopOf="@+id/updateBtn"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="@+id/updateBtn"
+            android:layout_marginBottom="8dp"/>
+    <Button
+            android:id="@+id/updateBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="SEND UPDATE"
+            app:layout_constraintTop_toBottomOf="@+id/scanBtn"
+            app:layout_constraintEnd_toEndOf="@+id/switchToFingerprint"
+            app:layout_constraintBottom_toTopOf="@+id/switchToFingerprint"
+            app:layout_constraintStart_toStartOf="@+id/switchToFingerprint" android:layout_marginBottom="8dp"/>
+    <Button
+            android:id="@+id/switchToFingerprint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="FINGERPRINT SCAN"
+            app:layout_constraintTop_toBottomOf="@+id/updateBtn"
+            app:layout_constraintEnd_toEndOf="@+id/aboutBtn" app:layout_constraintBottom_toTopOf="@+id/aboutBtn"
+            app:layout_constraintStart_toStartOf="@+id/aboutBtn" android:layout_marginBottom="8dp"/>
+    <Button
+            android:id="@+id/aboutBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="ABOUT"
+            app:layout_constraintTop_toBottomOf="@+id/switchToFingerprint" android:layout_marginBottom="16dp"
+            app:layout_constraintEnd_toEndOf="@+id/wifiList" app:layout_constraintBottom_toTopOf="@+id/wifiList"
+            app:layout_constraintStart_toStartOf="@+id/wifiList"
+            app:layout_constraintHorizontal_bias="0.0"/>
     <ListView
             android:id="@+id/wifiList"
             android:layout_width="wrap_content"
-            android:layout_height="169dp"
-            android:layout_weight="0.97"/>
-    <Button
-            android:id="@+id/scanBtn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom"
-            android:layout_margin="15dp"
-            android:background="@android:color/holo_red_light"
-            android:text="Scan WiFi"/>
-    <Button
-            android:id="@+id/listBtn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom"
-            android:layout_margin="15dp"
-            android:background="@android:color/holo_red_light"
-            android:text="AP List"/>
-    <Button
-            android:id="@+id/switchTest"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom"
-            android:layout_margin="15dp"
-            android:background="@android:color/holo_red_light"
-            android:text="MAPA" android:layout_weight="0.97"/>
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/aboutBtn" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
