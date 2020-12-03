@@ -1,5 +1,6 @@
 package com.example.wififingerprintscanner;
 
+
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,16 +9,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -25,17 +23,14 @@ import java.util.List;
 public class WiFiFingerprints extends AppCompatActivity{
 
     private WifiManager wifiManager;
-    private Button fingerprintButton;
+    private Button scanButton;
     private Button sendButton;
     private List<ScanResult> results;
     private final ArrayList<String> arrayList = new ArrayList<>();
-    private static final String DB_URL = "jdbc:mysql://192.168.0.2:3306/wifi_fingerprint_db?allowMultiQueries=true";
-    private static final String USER = "gr4d";
-    private static final String PASS = "172216";
     public int scanIndex = 0;
-    private ImageView mapa;
-    private EditText xPos;
-    private EditText yPos;
+    private PaintView mapa;
+    public EditText xPos;
+    public EditText yPos;
     private RadioButton radioVertical;
     private RadioButton radioHorizontal;
     private EditText comments;
@@ -44,9 +39,11 @@ public class WiFiFingerprints extends AppCompatActivity{
     private Spinner fingerprintPlaces;
     private String insert2;
     private String insert5;
+    public float test;
+    public TextView isErrorViewText;
 
+    WiFiScannerActivity wiFiScannerActivity = new WiFiScannerActivity();
 
-    WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
     BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -62,7 +59,11 @@ public class WiFiFingerprints extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi_fingerprints);
 
-        mapa = findViewById(R.id.imageMap);
+        isErrorViewText = findViewById(R.id.isErrorView);
+
+       //
+
+        mapa = findViewById(R.id.paint_view);
         fingerprintPlaces = findViewById(R.id.fingerprintPlacesList);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.fingerprintPlace, android.R.layout.simple_spinner_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -74,10 +75,14 @@ public class WiFiFingerprints extends AppCompatActivity{
                 System.out.println(fingerprintPlaces.getSelectedItem().toString());
                 System.out.println(fingerprintPlaces.getSelectedItemPosition());
                 if(fingerprintPlaces.getSelectedItemPosition() == 0){
-                    mapa.setImageResource(R.drawable.plan);
+                    //mapa.setImageResource(R.drawable.plan);
+                    //mapa.setBackground(R.drawable.plan);
+                    mapa.setBackgroundResource(R.drawable.plan);
                     System.out.println("Plan 1");
                 }else if(fingerprintPlaces.getSelectedItemPosition() == 1){
-                    mapa.setImageResource(R.drawable.plan2);
+                    //mapa.setImageResource(R.drawable.plan2);
+                    mapa.setBackgroundResource(R.drawable.plan2);
+                    //mapa.setBac
                     System.out.println("PLan 2");
                 }
             }
@@ -89,7 +94,8 @@ public class WiFiFingerprints extends AppCompatActivity{
         });
 
 
-        fingerprintButton = findViewById(R.id.scanBtn);
+
+        scanButton = findViewById(R.id.scanBtn);
         comments = findViewById(R.id.commentsText);
         comments.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,8 +104,8 @@ public class WiFiFingerprints extends AppCompatActivity{
             }
         });
 
-        fingerprintButton = findViewById(R.id.fingerprintButton);
-        fingerprintButton.setOnClickListener(new View.OnClickListener() {
+        scanButton = findViewById(R.id.fingerprintButton);
+        scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendButton.setEnabled(false);
@@ -110,20 +116,16 @@ public class WiFiFingerprints extends AppCompatActivity{
 
         sendButton = findViewById(R.id.sendButton);
         sendButton.setEnabled(false);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(results != null){
-                    fingerprintButton.setEnabled(false);
-                    System.out.println(" WYKONALO SIE ");
+        sendButton.setOnClickListener(view -> {
+            if(results != null){
+                scanButton.setEnabled(false);
 
-                    updateApList();
-//                    Send objSend = new Send();
-//                    objSend.execute("");
-                    sendButton.setEnabled(false);
+                System.out.println(" WYKONALO SIE ");
 
-                }else System.out.println(" RESULTS NULLLLLLLLL");
-            }
+                updateApList();
+                sendButton.setEnabled(false);
+
+            }else System.out.println(" RESULTS NULLLLLLLLL");
         });
 
         radioVertical = findViewById(R.id.radioVertical);
@@ -139,119 +141,135 @@ public class WiFiFingerprints extends AppCompatActivity{
         }
 
 
-        //Oznaczanie pozycji na planie i przeskalowanie (0-100)
-        mapa.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                float x = (motionEvent.getX()/mapa.getWidth())*100;
-                float y = (motionEvent.getY()/mapa.getHeight())*100;
-
+       // Oznaczanie pozycji na planie i przeskalowanie (0-100)
+//        mapa.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                float x = (motionEvent.getX()/mapa.getWidth())*100;
+//                float y = (motionEvent.getY()/mapa.getHeight())*100;
+//
                 xPos = findViewById(R.id.xPos);
                 yPos = findViewById(R.id.yPos);
 
-                System.out.println("X: "+x+" Y: "+y);
+//                System.out.println("X: "+x+" Y: "+y);
+//
+//                xPos.setText(String.valueOf(Math.round(x)));
+//                yPos.setText(String.valueOf(Math.round(y)));
+//
+//                return false;
+//            }
+//        });
+        PaintView paintView = (PaintView)findViewById(R.id.paint_view);
+        paintView.setOnTouchListener(paintView);
 
-                xPos.setText(String.valueOf(Math.round(x)));
-                yPos.setText(String.valueOf(Math.round(y)));
-
-                return false;
-            }
-        });
     }
 
     public void scanWifi() {
-        arrayList.clear();
-        System.out.println("Test");
-        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
-            if(!wifiManager.startScan() ){
-                Toast.makeText(this, "Należy odczekać 2 minuty aby ponowić skanowanie...", Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(this, "Scanning WiFi ...", Toast.LENGTH_SHORT).show();
-                System.out.println("Skanowanie prawidlowe");
-            }
-        }else if(shouldShowRequestPermissionRationale(String.valueOf(PackageManager.PERMISSION_GRANTED))){
-            Toast.makeText(this, "Error: 1 ", Toast.LENGTH_SHORT).show();
-            System.out.println("Nalezy wyswietlic UI.");
-        }else{
-            Toast.makeText(this, "Brak dostepu do lokalizacji.", Toast.LENGTH_SHORT).show();
-            System.out.println("Nalezy nadac uprawnienia");
-        }
-    }
 
-    private class Send extends AsyncTask<String, String, String> {
+            PaintView paintView = (PaintView)findViewById(R.id.paint_view);
+            System.out.println(paintView.xX);
+        if (paintView.isClicked){
+//            x = (paintView.mX/mapa.getWidth()) * 100;
+//            y = (paintView.mY/mapa.getHeight()) * 100;
 
-        int CHANNEL_WIDTH(){
-            if (results.get(scanIndex).channelWidth == 0){
-                return 20;
-            }else if (results.get(scanIndex).channelWidth == 1){
-                return 40;
-            }else if (results.get(scanIndex).channelWidth == 2){
-                return 80;
-            }else if (results.get(scanIndex).channelWidth == 3){
-                return 160;
-            }else return 81;
-        }
+            xPos.setText(String.valueOf(paintView.xX));
+            yPos.setText(String.valueOf(paintView.yY));
 
-        @Override
-        protected  void onPreExecute(){
-            System.out.println("Inserting data, preexecute");
-        }
-
-        @Override
-        protected String doInBackground(String... strings){
-            try {
-                System.out.println("error 1");
-                Class.forName("com.mysql.jdbc.Driver");
-                System.out.println("error 2");
-                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-
-
-                System.out.println("error 3");
-                System.out.println(Calendar.getInstance().getTime());
-
-                if (conn == null) {
-                    System.out.println("conn error");
+            arrayList.clear();
+            System.out.println("Test");
+            registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
+                if(!wifiManager.startScan() ){
+                    Toast.makeText(this, "Należy odczekać 2 minuty aby ponowić skanowanie...", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "Scanning WiFi ...", Toast.LENGTH_SHORT).show();
+                    System.out.println("Skanowanie prawidlowe");
                 }
-
-                Statement stmt = conn.createStatement();
-
-                //new test strings
-                prepareInsertStatement();
-
-                System.out.println(insert2);
-                System.out.println(insert5);
-                System.out.println(orientation());
-                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
-
-                stmt.executeUpdate(insert2+insert5);
-
-                System.out.println("Update powiodl sie 2");
-                conn.close();
-
-            } catch (ClassNotFoundException e) {
-                System.out.println("class not found exception");
-                e.printStackTrace();
-                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
-                intent.putExtra("errorDetails", e.toString());
-                startActivity(intent);
-            } catch (SQLException throwables) {
-                System.out.println("sqlexpception throwablss");
-                System.out.println(throwables);
-                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
-                intent.putExtra("errorDetails", throwables.toString());
-                startActivity(intent);
-                throwables.printStackTrace();
-
+            }else if(shouldShowRequestPermissionRationale(String.valueOf(PackageManager.PERMISSION_GRANTED))){
+                Toast.makeText(this, "Error: 1 ", Toast.LENGTH_SHORT).show();
+                System.out.println("Nalezy wyswietlic UI.");
+            }else{
+                Toast.makeText(this, "Brak dostepu do lokalizacji.", Toast.LENGTH_SHORT).show();
+                System.out.println("Nalezy nadac uprawnienia");
             }
-            return "ok";
-        }
-        @Override
-        protected void onPostExecute(String msg){
-            System.out.println("Post execute");
-            fingerprintButton.setEnabled(true);
-        }
+        }else
+            Toast.makeText(this, "Należy oznaczyć miejsce pomiaru", Toast.LENGTH_SHORT).show();
+
     }
+
+//    private class Send extends AsyncTask<String, String, String> {
+//
+//        int CHANNEL_WIDTH(){
+//            if (results.get(scanIndex).channelWidth == 0){
+//                return 20;
+//            }else if (results.get(scanIndex).channelWidth == 1){
+//                return 40;
+//            }else if (results.get(scanIndex).channelWidth == 2){
+//                return 80;
+//            }else if (results.get(scanIndex).channelWidth == 3){
+//                return 160;
+//            }else return 81;
+//        }
+//
+//        @Override
+//        protected  void onPreExecute(){
+//            System.out.println("Inserting data, preexecute");
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings){
+//            try {
+//                System.out.println("error 1");
+//                Class.forName("com.mysql.jdbc.Driver");
+//                System.out.println("error 2");
+//                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+//
+//
+//                System.out.println("error 3");
+//                System.out.println(Calendar.getInstance().getTime());
+//
+//                if (conn == null) {
+//                    System.out.println("conn error");
+//                }
+//
+//                Statement stmt = conn.createStatement();
+//
+//                //new test strings
+//                prepareInsertStatement();
+//
+//                System.out.println(insert2);
+//                System.out.println(insert5);
+//                System.out.println(orientation());
+//                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
+//
+//                stmt.executeUpdate(insert2+insert5);
+//
+//                System.out.println("Update powiodl sie 2");
+//                conn.close();
+//
+//            } catch (ClassNotFoundException e) {
+//                System.out.println("class not found exception");
+//                e.printStackTrace();
+//                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
+//                intent.putExtra("errorDetails", e.toString());
+//                startActivity(intent);
+//            } catch (SQLException throwables) {
+//                System.out.println("sqlexpception throwablss");
+//                System.out.println(throwables);
+//                Intent intent = new Intent(WiFiFingerprints.this, ErrorPopup.class);
+//                intent.putExtra("errorDetails", throwables.toString());
+//                startActivity(intent);
+//                throwables.printStackTrace();
+//
+//            }
+//            return "ok";
+//        }
+//        @Override
+//        protected void onPostExecute(String msg){
+//            System.out.println("Post execute");
+//            scanButton.setEnabled(true);
+//        }
+//    }
 
     public void filterFrequency(){
         if(results != null) {
@@ -325,79 +343,99 @@ public class WiFiFingerprints extends AppCompatActivity{
         }else return "horizontal";
     }
 
-    private class Update extends AsyncTask<String, String, String>{
-
-        //Dodawanie danych o AP do tabeli access_points
-        String BSSID = results.get(scanIndex).BSSID;
-        String SSID = results.get(scanIndex).SSID;
-        int FREQ = results.get(scanIndex).frequency;
-        int CHANNEL_WIDTH(){
-            switch (results.get(scanIndex).channelWidth) {
-                case 0:
-                    return 20;
-                case 1:
-                    return 40;
-                case 2:
-                    return 80;
-                case 3:
-                    return 160;
-                default:
-                    return 81;
-            }
-        }
-
-        @Override
-        protected  void onPreExecute(){
-            System.out.println("Inserting data, preexecute");
-        }
-
-        @Override
-        protected String doInBackground(String... strings){
-            try {
-                System.out.println("error 1");
-                Class.forName("com.mysql.jdbc.Driver");
-                System.out.println("error 2");
-                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("error 3");
-                System.out.println(Calendar.getInstance().getTime());
-
-                if (conn == null) {
-                    System.out.println("conn error");
-                }
-                Statement stmt = conn.createStatement();
-                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
-                        "values ('"+BSSID+"','"+SSID+"','"+FREQ+"','"+wiFiScannerDetails.freqToChannel(FREQ)+"' ,'"+CHANNEL_WIDTH()+"', '"+ Calendar.getInstance().getTime()+ "')";
-
-                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
-
-                stmt.executeUpdate(insert);
-
-                System.out.println("Update powiodl sie 2");
-                conn.close();
-
-            } catch (ClassNotFoundException e) {
-                System.out.println("class not found exception");
-                e.printStackTrace();
-            } catch (SQLException throwables) {
-                System.out.println("sqlexpception throwablss");
-                System.out.println(throwables);
-                throwables.printStackTrace();
-            }
-            return "ok";
-        }
-        @Override
-        protected void onPostExecute(String msg){
-            System.out.println("Post execute");
-        }
-    }
+//    private class Update extends AsyncTask<String, String, String>{
+//
+//        //Dodawanie danych o AP do tabeli access_points
+//        String BSSID = results.get(scanIndex).BSSID;
+//        String SSID = results.get(scanIndex).SSID;
+//        int FREQ = results.get(scanIndex).frequency;
+//        int CHANNEL_WIDTH(){
+//            switch (results.get(scanIndex).channelWidth) {
+//                case 0:
+//                    return 20;
+//                case 1:
+//                    return 40;
+//                case 2:
+//                    return 80;
+//                case 3:
+//                    return 160;
+//                default:
+//                    return 81;
+//            }
+//        }
+//
+//        @Override
+//        protected  void onPreExecute(){
+//            System.out.println("Inserting data, preexecute");
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings){
+//            try {
+//                System.out.println("error 1");
+//                Class.forName("com.mysql.jdbc.Driver");
+//                System.out.println("error 2");
+//                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+//                System.out.println("error 3");
+//                System.out.println(Calendar.getInstance().getTime());
+//
+//                if (conn == null) {
+//                    System.out.println("conn error");
+//                }
+//                Statement stmt = conn.createStatement();
+//                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
+//                        "values ('"+BSSID+"','"+SSID+"','"+FREQ+"','"+wiFiScannerDetails.freqToChannel(FREQ)+"' ,'"+CHANNEL_WIDTH()+"', '"+ Calendar.getInstance().getTime()+ "')";
+//
+//                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
+//
+//                stmt.executeUpdate(insert);
+//
+//                System.out.println("Update powiodl sie 2");
+//                conn.close();
+//
+//            } catch (ClassNotFoundException e) {
+//                System.out.println("class not found exception");
+//                e.printStackTrace();
+//            } catch (SQLException throwables) {
+//                System.out.println("sqlexpception throwablss");
+//                System.out.println(throwables);
+//                throwables.printStackTrace();
+//            }
+//            return "ok";
+//        }
+//        @Override
+//        protected void onPostExecute(String msg){
+//            System.out.println("Post execute");
+//        }
+//    }
 
     public void updateApList(){
+       // isSetError = false;
         for(int x = 0; x < results.size(); x++){
             scanIndex = x;
-            Update objUpdate = new Update();
-            objUpdate.execute("");
+//            Update objUpdate = new Update();
+//            objUpdate.execute("");
+            //aktualizacja ap
+            ApUpdate objSend = new ApUpdate();
+            objSend.setData(results, scanIndex, wiFiScannerActivity.DB_URL, wiFiScannerActivity.USER, wiFiScannerActivity.PASS);
+            ApUpdate.SendUpdate senddd = objSend.new SendUpdate();
+            senddd.execute("");
+
+
         }
-        Send objSend = new Send();
-        objSend.execute("");
+        //insert pomiary
+        prepareInsertStatement();
+
+        FingerprintsSend fingerprintsSend = new FingerprintsSend();
+        fingerprintsSend.setData(results, scanIndex, wiFiScannerActivity.DB_URL, wiFiScannerActivity.USER, wiFiScannerActivity.PASS, insert2, insert5);
+        FingerprintsSend.SendFingerprint sendFingerprint = fingerprintsSend.new SendFingerprint();
+        sendFingerprint.execute("");
+
+        scanButton.setEnabled(true);
+
     }
+
+
+
 }
+

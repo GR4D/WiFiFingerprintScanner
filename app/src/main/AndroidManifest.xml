@@ -29,8 +29,6 @@
 
         <activity android:name=".WiFiFingerprints">
         </activity>
-        <activity android:name=".WiFiList">
-        </activity>
         <activity android:name=".WiFiScannerDetails">
         </activity>
         <activity android:name=".WiFiScannerActivity">

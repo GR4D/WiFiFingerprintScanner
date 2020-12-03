@@ -21,7 +21,7 @@ public class WiFiScannerDetails extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             detailsToolbar.setTitle("Showing details for " + bundle.getString("detailsSsid"));
-            scanDetailsInfo.setText("RSSI: "+ bundle.getInt("detailsRssi") + "dBm\nFreq: " + bundle.getInt("detailsFreq") + "MHz\nChannel: " + freqToChannel(bundle.getInt("detailsFreq"))
+            scanDetailsInfo.setText("RSSI: "+ bundle.getInt("detailsRssi") + "dBm\nFrequency: " + bundle.getInt("detailsFreq") + "MHz\nChannel: " + freqToChannel(bundle.getInt("detailsFreq"))
             + "\nMAC: " + bundle.getString("detailsMac") + "\nEncryption: " + bundle.getString("detailsEncryption"));
         }
     }
