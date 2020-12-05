@@ -9,12 +9,15 @@ import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class WiFiScannerActivity extends AppCompatActivity {
@@ -32,7 +35,7 @@ public class WiFiScannerActivity extends AppCompatActivity {
     public String PASS = "172216";
     public int scanIndex = 0;
 
-    //WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
+    WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
 
     BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
         @Override
@@ -102,14 +105,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
             //Przygotowanie danych do wyswietlenia szczegolow
             Intent intent = new Intent(WiFiScannerActivity.this, WiFiScannerDetails.class);
             fillData(intent,i);
-//                scanIndex = i;
-////                Send objSend = new Send();
-////                objSend.execute("");
-//
-//                ApUpdate objSend = new ApUpdate();
-//                objSend.setData(results, scanIndex, DB_URL, USER, PASS);
-//                ApUpdate.SendUpdate senddd = objSend.new SendUpdate();
-//                senddd.execute("");
             startActivity(intent);
         });
     }
@@ -143,82 +138,32 @@ public class WiFiScannerActivity extends AppCompatActivity {
        }
     }
 
-//    private class Send extends AsyncTask<String, String, String>{
-//
-//        //Dodawanie danych o AP do tabeli access_points
-//        String BSSID = results.get(scanIndex).BSSID;
-//        String SSID = results.get(scanIndex).SSID;
-//        int FREQ = results.get(scanIndex).frequency;
-//        int CHANNEL_WIDTH(){
-//            if (results.get(scanIndex).channelWidth == 0){
-//                return 20;
-//            }else if (results.get(scanIndex).channelWidth == 1){
-//                return 40;
-//            }else if (results.get(scanIndex).channelWidth == 2){
-//                return 80;
-//            }else if (results.get(scanIndex).channelWidth == 3){
-//                return 160;
-//            }else return 81;
-//        }
-//
-//        @Override
-//        protected  void onPreExecute(){
-//            System.out.println("Inserting data, preexecute");
-//        }
-//
-//        @Override
-//        protected String doInBackground(String... strings){
-//            try {
-//                System.out.println("error 1");
-//                Class.forName("com.mysql.jdbc.Driver");
-//                System.out.println("error 2");
-//                Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-//                System.out.println("error 3");
-//                System.out.println(Calendar.getInstance().getTime());
-//
-//                if (conn == null) {
-//                    System.out.println("conn error");
-//                }
-//                //fillData();
-//                Statement stmt = conn.createStatement();
-//                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
-//                        "values ('"+BSSID+"','"+SSID+"','"+FREQ+"','"+wiFiScannerDetails.freqToChannel(FREQ)+"' ,'"+CHANNEL_WIDTH()+"', '"+ Calendar.getInstance().getTime()+ "')";
-//
-//                System.out.println("szerokosc kanalu: "+results.get(scanIndex).frequency+ "  "+CHANNEL_WIDTH());
-//
-//                stmt.executeUpdate(insert);
-//
-//                System.out.println("Update powiodl sie 2");
-//                conn.close();
-//
-//                //odkomentowac w oficjalnej wersji
-//                switchToMapButton.setEnabled(true);
-//
-//            } catch (ClassNotFoundException e) {
-//                System.out.println("class not found exception");
-//                e.printStackTrace();
-//            } catch (SQLException throwables) {
-//                System.out.println("sqlexpception throwablss");
-//                System.out.println(throwables);
-//                throwables.printStackTrace();
-//            }
-//            return "ok";
-//        }
-//        @Override
-//        protected void onPostExecute(String msg){
-//            System.out.println("Post execute");
-//        }
-//    }
+    int CHANNEL_WIDTH(int channelWidth){
+        switch (channelWidth) {
+            case 0:
+                return 20;
+            case 1:
+                return 40;
+            case 2:
+                return 80;
+            case 3:
+                return 160;
+            default:
+                return 81;
+        }
+    }
 
     public void updateApList(){
         for(int x = 0; x < results.size(); x++){
             scanIndex = x;
+            String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
+                    "values ('" + results.get(scanIndex).BSSID + "','" + results.get(scanIndex).SSID + "','" + results.get(scanIndex).frequency + "','" + wiFiScannerDetails.freqToChannel(results.get(scanIndex).frequency) + "' ,'" + CHANNEL_WIDTH(results.get(scanIndex).channelWidth) + "', '" + Calendar.getInstance().getTime() + "')";
+            DatabaseSend objSend = new DatabaseSend();
+            objSend.setData(DB_URL, USER, PASS, insert);
+            System.out.println(insert);
 
-            ApUpdate objSend = new ApUpdate();
-            objSend.setData(results, scanIndex, DB_URL, USER, PASS);
-
-            ApUpdate.SendUpdate senddd = objSend.new SendUpdate();
-            senddd.execute("");
+            DatabaseSend.SendUpdate objSendUpdate = objSend.new SendUpdate();
+            objSendUpdate.execute("");
         }
         switchToMapButton.setEnabled(true);
     }
