@@ -115,7 +115,6 @@ public class WiFiScannerActivity extends AppCompatActivity {
         intent.putExtra("detailsFreq", results.get(i).frequency);
         intent.putExtra("detailsMac", results.get(i).BSSID);
         intent.putExtra("detailsEncryption", results.get(i).capabilities);
-        System.out.println(results.get(i).BSSID + " BLANK RSSI VALUE: " + results.get(i).level);
     }
 
     public void scanWifi() {
