@@ -16,4 +16,18 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_wi_fi_ap_list">WiFiApList</string>
     <string name="title_activity_error_popup">ErrorPopup</string>
+    <string name="about"><b>Aby rozpocząć pomiary należy:</b>\n
+    1. Podać dane logowania do bazy.\n
+    2. Przeprowadzić wstępne skanowanie przyciskiem SCAN WIFI.\n
+    3. Przesłać informacje o AP do bazy przyciskiem SEND UPDATE.\n
+    4. W oknie FINGERPRINTS oznaczyć miejsce pomiaru.\n
+    5. Wybrać orientację telefonu, badaną przestrzeń i dodać komentarz.\n
+    6. Wykonać pomiar przyciskiem SCAN.\n
+    7. Przesłać pomiar do bazy przyciskiem SEND.\n\n
+        <b>UWAGA!</b> W przypadku błędnie wykonanego pomiaru należy go ponowić przyciskiem SCAN!\n\n
+        <b>Możliwe problemy:</b>\n
+    Do poprawnego działania aplikacji należy umożliwić dostęp do lokalizacji urządzenia w ustawieniach.\n\n
+    W przypadku wersji Android 9. lub wyższej występuje ograniczenie liczby skanowań do 4 w ciągu 2 minut. W wersji Android 10. można je wyłączyć w opcjach deweloperskich urządzenia,
+        dezaktywując opcję <b>WiFi Scan Throttling.</b>\n\n
+    <b>Pomyślne</b> skanowanie sieci sygnalizowane jest stosownym komunikatem na dole ekranu.</string>
 </resources>

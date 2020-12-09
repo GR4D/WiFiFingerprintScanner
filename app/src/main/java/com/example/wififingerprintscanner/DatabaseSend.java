@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Calendar;
 
 public class DatabaseSend {
 
@@ -26,21 +25,16 @@ public class DatabaseSend {
 
         @Override
         protected void onPreExecute() {
-            System.out.println("Inserting data, preexecute");
         }
 
         @Override
         protected String doInBackground(String... strings) {
             try {
-                System.out.println("error 1");
                 Class.forName("com.mysql.jdbc.Driver");
-                System.out.println("error 2");
                 Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                System.out.println("error 3");
-                System.out.println(Calendar.getInstance().getTime());
 
                 if (conn == null) {
-                    System.out.println("conn error");
+
                 }else{
                     Statement stmt = conn.createStatement();
                     stmt.executeUpdate(insert);
@@ -48,11 +42,8 @@ public class DatabaseSend {
                 }
 
             } catch (ClassNotFoundException e) {
-                System.out.println("class not found exception");
                 e.printStackTrace();
             } catch (SQLException throwables) {
-                System.out.println("sqlexpception throwablss");
-                System.out.println(throwables);
                 throwables.printStackTrace();
             }
             return "ok";
@@ -60,7 +51,6 @@ public class DatabaseSend {
 
         @Override
         protected void onPostExecute(String msg) {
-            System.out.println("Post execute");
         }
     }
 }

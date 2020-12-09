@@ -1,6 +1,5 @@
 package com.example.wififingerprintscanner;
 
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import com.mysql.jdbc.StringUtils;
 
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -28,11 +28,10 @@ public class WiFiFingerprints extends AppCompatActivity{
     private Button scanButton;
     private Button sendButton;
     private List<ScanResult> results;
-    private final ArrayList<String> arrayList = new ArrayList<>();
-    public int scanIndex = 0;
+    protected int scanIndex = 0;
     private PaintView mapa;
-    public EditText xPos;
-    public EditText yPos;
+    protected EditText xPos;
+    protected EditText yPos;
     private RadioButton radioVertical;
     private RadioButton radioHorizontal;
     private EditText comments;
@@ -41,8 +40,6 @@ public class WiFiFingerprints extends AppCompatActivity{
     private Spinner fingerprintPlaces;
     private String insert2;
     private String insert5;
-    public float test;
-    public TextView isErrorViewText;
 
     WiFiScannerActivity wiFiScannerActivity = new WiFiScannerActivity();
     WiFiScannerDetails wiFiScannerDetails = new WiFiScannerDetails();
@@ -62,10 +59,6 @@ public class WiFiFingerprints extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wi_fi_fingerprints);
 
-        isErrorViewText = findViewById(R.id.isErrorView);
-
-       //
-
         mapa = findViewById(R.id.paint_view);
         fingerprintPlaces = findViewById(R.id.fingerprintPlacesList);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.fingerprintPlace, android.R.layout.simple_spinner_item);
@@ -74,47 +67,27 @@ public class WiFiFingerprints extends AppCompatActivity{
         fingerprintPlaces.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                System.out.println("item selected");
-                System.out.println(fingerprintPlaces.getSelectedItem().toString());
-                System.out.println(fingerprintPlaces.getSelectedItemPosition());
+
                 if(fingerprintPlaces.getSelectedItemPosition() == 0){
-                    //mapa.setImageResource(R.drawable.plan);
-                    //mapa.setBackground(R.drawable.plan);
                     mapa.setBackgroundResource(R.drawable.plan);
-                    System.out.println("Plan 1");
                 }else if(fingerprintPlaces.getSelectedItemPosition() == 1){
-                    //mapa.setImageResource(R.drawable.plan2);
                     mapa.setBackgroundResource(R.drawable.plan2);
-                    //mapa.setBac
-                    System.out.println("PLan 2");
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
-
-
 
         scanButton = findViewById(R.id.scanBtn);
         comments = findViewById(R.id.commentsText);
-        comments.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                comments.setText(null);
-            }
-        });
+        comments.setOnClickListener(view -> comments.setText(null));
 
         scanButton = findViewById(R.id.fingerprintButton);
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendButton.setEnabled(false);
-                scanWifi();
-                System.out.println(fingerprintPlaces.getSelectedItem().toString());
-            }
+        scanButton.setOnClickListener(view -> {
+            sendButton.setEnabled(false);
+            scanWifi();
         });
 
         sendButton = findViewById(R.id.sendButton);
@@ -122,13 +95,9 @@ public class WiFiFingerprints extends AppCompatActivity{
         sendButton.setOnClickListener(view -> {
             if(results != null){
                 scanButton.setEnabled(false);
-
-                System.out.println(" WYKONALO SIE ");
-
                 updateApList();
                 sendButton.setEnabled(false);
-
-            }else System.out.println(" RESULTS NULLLLLLLLL");
+            }
         });
 
         radioVertical = findViewById(R.id.radioVertical);
@@ -143,57 +112,33 @@ public class WiFiFingerprints extends AppCompatActivity{
             wifiManager.setWifiEnabled(true);
         }
 
-
-       // Oznaczanie pozycji na planie i przeskalowanie (0-100)
-//        mapa.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                float x = (motionEvent.getX()/mapa.getWidth())*100;
-//                float y = (motionEvent.getY()/mapa.getHeight())*100;
-//
                 xPos = findViewById(R.id.xPos);
                 yPos = findViewById(R.id.yPos);
 
-//                System.out.println("X: "+x+" Y: "+y);
-//
-//                xPos.setText(String.valueOf(Math.round(x)));
-//                yPos.setText(String.valueOf(Math.round(y)));
-//
-//                return false;
-//            }
-//        });
-        PaintView paintView = (PaintView)findViewById(R.id.paint_view);
+        PaintView paintView = findViewById(R.id.paint_view);
         paintView.setOnTouchListener(paintView);
-
     }
 
     public void scanWifi() {
 
-            PaintView paintView = (PaintView)findViewById(R.id.paint_view);
-            System.out.println(paintView.xX);
+            PaintView paintView = findViewById(R.id.paint_view);
         if (paintView.isClicked){
-//            x = (paintView.mX/mapa.getWidth()) * 100;
-//            y = (paintView.mY/mapa.getHeight()) * 100;
+
 
             xPos.setText(String.valueOf(paintView.xX));
             yPos.setText(String.valueOf(paintView.yY));
 
-            arrayList.clear();
-            System.out.println("Test");
             registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
                 if(!wifiManager.startScan() ){
                     Toast.makeText(this, "Należy odczekać 2 minuty aby ponowić skanowanie...", Toast.LENGTH_SHORT).show();
                 }else{
                     Toast.makeText(this, "Scanning WiFi ...", Toast.LENGTH_SHORT).show();
-                    System.out.println("Skanowanie prawidlowe");
                 }
             }else if(shouldShowRequestPermissionRationale(String.valueOf(PackageManager.PERMISSION_GRANTED))){
                 Toast.makeText(this, "Error: 1 ", Toast.LENGTH_SHORT).show();
-                System.out.println("Nalezy wyswietlic UI.");
             }else{
                 Toast.makeText(this, "Brak dostepu do lokalizacji.", Toast.LENGTH_SHORT).show();
-                System.out.println("Nalezy nadac uprawnienia");
             }
         }else
             Toast.makeText(this, "Należy oznaczyć miejsce pomiaru", Toast.LENGTH_SHORT).show();
@@ -213,12 +158,11 @@ public class WiFiFingerprints extends AppCompatActivity{
         }
     }
     
-    public void prepareInsertStatement(){ //DODAC ADRESY MAC TELEFONU
+    public void prepareInsertStatement(){
         switch (results2.size()) {
             case 0:
                 insert2 = "";
                 break;
-            //wifiManager.getConnectionInfo().getMacAddress()
             case 1:
                 insert2 = "insert ignore into fingerprints (x_pos, y_pos, band, ap_1, ss_1, date, device_info, device_mac, orientation, fingerprint_area, comments) " +
                         "values ('" + xPos.getText() + "','" + yPos.getText() + "','" + "2.4" + "','" + results2.get(0).BSSID + "' ,'" + results2.get(0).level + "','" + Calendar.getInstance().getTime() + "'," +
@@ -289,30 +233,28 @@ public class WiFiFingerprints extends AppCompatActivity{
     }
 
     public void updateApList(){
-       // isSetError = false;
-        for(int x = 0; x < results.size(); x++){
-            scanIndex = x;
-//            Update objUpdate = new Update();
-//            objUpdate.execute("");
-            //aktualizacja ap
-            String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
-                    "values ('" + results.get(scanIndex).BSSID + "','" + results.get(scanIndex).SSID + "','" + results.get(scanIndex).frequency + "','" + wiFiScannerDetails.freqToChannel(results.get(scanIndex).frequency) + "' ,'" + wiFiScannerActivity.CHANNEL_WIDTH(results.get(scanIndex).channelWidth) + "', '" + Calendar.getInstance().getTime() + "')";
+        if (!StringUtils.isNullOrEmpty(WiFiScannerActivity.DB_URL) || !StringUtils.isNullOrEmpty(WiFiScannerActivity.USER) || !StringUtils.isNullOrEmpty(WiFiScannerActivity.PASS)){
+            for(int x = 0; x < results.size(); x++){
+                scanIndex = x;
+
+                String insert = "insert ignore into access_points (mac, ssid, frequency, channel, channel_width, first_seen ) " +
+                        "values ('" + results.get(scanIndex).BSSID + "','" + results.get(scanIndex).SSID + "','" + results.get(scanIndex).frequency + "','" + wiFiScannerDetails.freqToChannel(results.get(scanIndex).frequency) + "' ,'" + wiFiScannerActivity.CHANNEL_WIDTH(results.get(scanIndex).channelWidth) + "', '" + Calendar.getInstance().getTime() + "')";
+                DatabaseSend objSend = new DatabaseSend();
+                objSend.setData(WiFiScannerActivity.DB_URL, WiFiScannerActivity.USER, WiFiScannerActivity.PASS, insert);
+                DatabaseSend.SendUpdate objSendUpdate = objSend.new SendUpdate();
+                objSendUpdate.execute("");
+            }
+            prepareInsertStatement();
+            String insert = insert2 + insert5;
+
             DatabaseSend objSend = new DatabaseSend();
-            objSend.setData(wiFiScannerActivity.DB_URL, wiFiScannerActivity.USER, wiFiScannerActivity.PASS, insert);
+            objSend.setData(WiFiScannerActivity.DB_URL, WiFiScannerActivity.USER, WiFiScannerActivity.PASS, insert);
             DatabaseSend.SendUpdate objSendUpdate = objSend.new SendUpdate();
             objSendUpdate.execute("");
-
-
+            scanButton.setEnabled(true);
+        }else {
+            Toast.makeText(this, "Uzupełnij dane do logowania w zakładce ABOUT.", Toast.LENGTH_LONG).show();
         }
-        //insert pomiary
-        prepareInsertStatement();
-        String insert = insert2 + insert5;
-
-        DatabaseSend objSend = new DatabaseSend();
-        objSend.setData(wiFiScannerActivity.DB_URL, wiFiScannerActivity.USER, wiFiScannerActivity.PASS, insert);
-        DatabaseSend.SendUpdate objSendUpdate = objSend.new SendUpdate();
-        objSendUpdate.execute("");
-        scanButton.setEnabled(true);
 
     }
     public static String getMacAddr() {
@@ -340,8 +282,5 @@ public class WiFiFingerprints extends AppCompatActivity{
         }
         return "";
     }
-
-
-
 }
 

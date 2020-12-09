@@ -7,8 +7,8 @@ import android.os.Bundle;
 
 public class WiFiScannerDetails extends AppCompatActivity {
 
-    Toolbar detailsToolbar;
-    TextView scanDetailsInfo;
+    protected Toolbar detailsToolbar;
+    protected TextView scanDetailsInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
